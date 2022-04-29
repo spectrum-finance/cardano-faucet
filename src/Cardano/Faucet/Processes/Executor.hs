@@ -18,17 +18,17 @@ import Cardano.Faucet.Models
 import CardanoTx.Models
 import CardanoTx.Interop
 import Cardano.Faucet.Configs
+import Cardano.Faucet.Types (DripAddress(getDripAddress), DripAsset(..))
 
-import           Plutus.V1.Ledger.Value
 import qualified Ledger as Interval
+import           Plutus.V1.Ledger.Value
+import           Plutus.V1.Ledger.Api (adaSymbol)
+import           Plutus.V2.Ledger.Api (adaToken)
+import           PlutusTx.Prelude (Group(inv))
+import           Cardano.Api (Lovelace(Lovelace))
 
 import SubmitAPI.Service
 import SubmitAPI.Config (unwrapChangeAddress)
-import Cardano.Faucet.Types (DripAddress(getDripAddress), DripAsset(..))
-import Plutus.V1.Ledger.Api (adaSymbol)
-import Plutus.V2.Ledger.Api (adaToken)
-import PlutusTx.Prelude (Group(inv))
-import Cardano.Api (Lovelace, getTxId)
 
 newtype Executor m = Executor
   { runExecutor :: m ()
