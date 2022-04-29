@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "cardano-faucet:lib:cardano-faucet"
+    - path: "./app"
+      component: "cardano-faucet:exe:cardano-faucet-app"
