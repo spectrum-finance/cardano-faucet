@@ -22,8 +22,7 @@ import Ledger.Value (assetClass)
 
 newtype DripAsset = DripAsset { getDripAsset :: AssetClass }
   deriving stock (Eq, Show, Ord, Generic)
-
-instance ToJSON DripAsset
+  deriving newtype ToJSON
 
 instance FromJSON DripAsset where
   parseJSON (String s) = either fail pure $ dripAssetFromString $ T.unpack s
