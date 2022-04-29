@@ -28,7 +28,7 @@ import Cardano.Faucet.Types (DripAddress(getDripAddress), DripAsset(..))
 import Plutus.V1.Ledger.Api (adaSymbol)
 import Plutus.V2.Ledger.Api (adaToken)
 import PlutusTx.Prelude (Group(inv))
-import Cardano.Api (Lovelace(Lovelace), getTxId)
+import Cardano.Api (Lovelace, getTxId)
 
 newtype Executor m = Executor
   { runExecutor :: m ()
