@@ -35,8 +35,10 @@ in
 , nodeConfig =
   { nodeSocketPath = "/home/dex/cardano-node/testnet-node-local/bin/state-node-testnet/node.socket"
   }
-, secrets =
-  { secretFile = "/home/dex/cardano-dex-backend/executor/ts.json"
-  , keyPass    = "secret"
+, wallet =
+  { secretFile   = "/home/dex/cardano-dex-backend/executor/ts.json"
+  , keyPass      = "secret"
+  , cardanoStyle = False
   }
+, reCaptchaSecret = "secret"
 }

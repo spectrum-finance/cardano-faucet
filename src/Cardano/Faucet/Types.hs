@@ -1,5 +1,7 @@
 module Cardano.Faucet.Types
-  ( DripAsset(..)
+  ( ReCaptchaSecret(..)
+  , ReCaptchaToken(..)
+  , DripAsset(..)
   , DripAddress(..)
   , dripAssetFromString
   ) where
@@ -19,6 +21,14 @@ import qualified Cardano.Api as C
 import qualified Ledger.Tx.CardanoAPI as Interop
 import Ledger (AssetClass, Address)
 import Ledger.Value (assetClass)
+
+newtype ReCaptchaSecret = ReCaptchaSecret { getSecret :: String }
+  deriving stock (Eq, Show, Ord, Generic)
+  deriving newtype FromDhall
+
+newtype ReCaptchaToken = ReCaptchaToken { getToken :: String }
+  deriving stock (Eq, Show, Ord, Generic)
+  deriving newtype FromJSON
 
 newtype DripAsset = DripAsset { getDripAsset :: AssetClass }
   deriving stock (Eq, Show, Ord, Generic)

@@ -24,6 +24,7 @@ import System.Logging.Hlog (MakeLogging(..), Logging (debugM, Logging))
 import Cardano.Faucet.Configs
 import RIO ((<&>))
 import GHC.Natural (naturalToInteger)
+import Cardano.Faucet.Services.ReCaptcha
 
 type RequestQueues m   = Map.Map DripAsset (RequestQueue m)
 type FundingOutputs' m = Map.Map DripAsset (FundingOutputs m)
@@ -36,16 +37,17 @@ data Faucet m = Faucet
 
 mkFaucet
   :: (Monad f, Monad m)
-  => RequestQueues m 
+  => RequestQueues m
   -> FundingOutputs' m
   -> OutputResolver m
+  -> ReCaptcha m
   -> MakeLogging f m
   -> AppConfig
   -> f (Faucet m)
-mkFaucet rqs fouts oresolver MakeLogging{..} conf = do
+mkFaucet rqs fouts oresolver captcha MakeLogging{..} conf = do
   logging <- forComponent "Faucet"
   pure Faucet
-    { registerRequest = traceMethod logging "registerRequest" $ registerRequest' rqs
+    { registerRequest = traceMethod logging "registerRequest" $ registerRequestReCaptchaVerify captcha $ registerRequest' rqs
     , ackFundingUtxo  = traceMethod logging "ackFundingUtxo" $ ackFundingUtxo' oresolver fouts
     , getDripOptions  = getDripOptions' conf
     }
@@ -71,6 +73,17 @@ registerRequest' queues req@DripRequest{..} = -- todo: filter repeating addresse
         True -> pure ()
         _    -> throwError err500 { errBody = "Service overloaded. Try again later." }
     _ -> throwError err400 { errBody = "Requested asset isn't supported." }
+
+registerRequestReCaptchaVerify
+  :: Monad m
+  => ReCaptcha m
+  -> (DripRequest -> ExceptT ServerError m ())
+  -> DripRequest
+  -> ExceptT ServerError m ()
+registerRequestReCaptchaVerify ReCaptcha{..} fa req@DripRequest{..} =
+  lift (verify reCaptchaToken) >>= \case
+    True -> fa req
+    _    -> throwError err400 { errBody = "Invalid ReCaptcha token." }
 
 ackFundingUtxo' :: Monad m => OutputResolver m -> FundingOutputs' m -> AckUtxo -> ExceptT ServerError m ()
 ackFundingUtxo' OutputResolver{..} outputs' (AckUtxo ref) =

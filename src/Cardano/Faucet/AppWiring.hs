@@ -15,7 +15,7 @@ import qualified Data.Map as Map
 import qualified Cardano.Api as C
 
 import Explorer.Service (mkExplorer)
-import WalletAPI.TrustStore (mkTrustStore)
+import WalletAPI.TrustStore (mkTrustStoreUnsafe, mkTrustStore, SecretFile (unSigningKeyFile))
 import WalletAPI.Vault (mkVault)
 import WalletAPI.Utxos (WalletOutputs(..))
 import NetworkAPI.Types (SocketPath(SocketPath))
@@ -25,10 +25,11 @@ import SubmitAPI.Service (mkTransactions)
 import Cardano.Faucet.Modules.RequestQueue
 import Cardano.Faucet.Modules.FundingOutputs
 import Cardano.Faucet.Modules.OutputResolver
-import Cardano.Faucet.Configs (AppConfig(..), ExecutionConfig(..), Secrets(..), NodeConfig(..))
+import Cardano.Faucet.Configs (AppConfig(..), ExecutionConfig(..), WalletConfig(..), NodeConfig(..))
 import Cardano.Faucet.Processes.Executor (mkExecutor, Executor (runExecutor))
 import Cardano.Faucet.Http.Service (mkFaucet)
 import Cardano.Faucet.Http.Server (runHttpServer)
+import Cardano.Faucet.Services.ReCaptcha (mkReCaptcha)
 
 newtype App m = App { runApp :: m () }
 
@@ -36,11 +37,14 @@ mkApp
   :: UnliftIO IO
   -> AppConfig
   -> IO (App IO)
-mkApp ul appconf@AppConfig{secrets=Secrets{..}, ..} = do
-  mkLogging <- makeLogging loggingConfig
+mkApp ul appconf@AppConfig{wallet=WalletConfig{..}, ..} = do
+  mkLogging  <- makeLogging loggingConfig
+  trustStore <-
+    if cardanoStyle
+      then mkTrustStoreUnsafe C.AsPaymentKey (unSigningKeyFile secretFile)
+      else pure $ mkTrustStore C.AsPaymentKey secretFile
   let
     explorer      = mkExplorer explorerConfig
-    trustStore    = mkTrustStore @_ @C.PaymentKey C.AsPaymentKey secretFile
     vault         = mkVault trustStore keyPass
     walletOutputs = noopWalletOutputs
     sockPath      = SocketPath $ nodeSocketPath nodeConfig
@@ -59,7 +63,9 @@ mkApp ul appconf@AppConfig{secrets=Secrets{..}, ..} = do
     queues    = Map.fromList $ modules <&> (\(a, q, _, _) -> (a, q))
     fundOuts  = Map.fromList $ modules <&> (\(a, _, o, _) -> (a, o))
     executors = modules <&> (\(_, _, _, exec) -> exec)
-  faucet <- mkFaucet queues fundOuts resolver mkLogging appconf
+
+  reCaptcha <- mkReCaptcha reCaptchaSecret mkLogging
+  faucet    <- mkFaucet queues fundOuts resolver reCaptcha mkLogging appconf
   let runServer = runHttpServer httpConfig faucet ul
   Logging{infoM} <- forComponent mkLogging "App"
 

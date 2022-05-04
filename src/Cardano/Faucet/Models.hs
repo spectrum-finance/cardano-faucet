@@ -11,7 +11,7 @@ import qualified Data.Text as T
 import           Data.String
 
 import Plutus.V1.Ledger.Tx (TxOutRef (TxOutRef))
-import Cardano.Faucet.Types (DripAddress(..), DripAsset(..))
+import Cardano.Faucet.Types (DripAddress(..), DripAsset(..), ReCaptchaToken)
 
 data DripOption = DripOption
   { dripAsset  :: DripAsset
@@ -22,7 +22,8 @@ data DripOption = DripOption
 
 data DripRequest = DripRequest
   { requestAddress :: DripAddress
-  , requestAsset   :: DripAsset 
+  , requestAsset   :: DripAsset
+  , reCaptchaToken :: ReCaptchaToken
   }
   deriving stock (Eq, Show, Generic)
   deriving FromJSON

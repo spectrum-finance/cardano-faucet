@@ -2,7 +2,7 @@ module Cardano.Faucet.Configs
   ( AppConfig(..)
   , HttpConfig(..)
   , ExecutionConfig(..)
-  , Secrets(..)
+  , WalletConfig(..)
   , NodeConfig(..)
   , loadAppConfig
   ) where
@@ -18,7 +18,7 @@ import SubmitAPI.Config    (TxAssemblyConfig, DefaultChangeAddress)
 import Explorer.Config     (ExplorerConfig)
 import WalletAPI.TrustStore
 
-import Cardano.Faucet.Types (DripAsset(..))
+import Cardano.Faucet.Types (DripAsset(..), ReCaptchaSecret)
 
 data AppConfig = AppConfig
   { httpConfig       :: HttpConfig
@@ -27,7 +27,8 @@ data AppConfig = AppConfig
   , explorerConfig   :: ExplorerConfig
   , txAssemblyConfig :: TxAssemblyConfig
   , nodeConfig       :: NodeConfig
-  , secrets          :: Secrets
+  , wallet           :: WalletConfig
+  , reCaptchaSecret  :: ReCaptchaSecret
   }
   deriving (Generic, FromDhall)
 
@@ -53,9 +54,10 @@ data NodeConfig = NodeConfig
   }
   deriving (Generic, FromDhall)
 
-data Secrets = Secrets
-  { secretFile :: SecretFile
-  , keyPass    :: KeyPass
+data WalletConfig = WalletConfig
+  { secretFile   :: SecretFile
+  , keyPass      :: KeyPass
+  , cardanoStyle :: Bool 
   }
   deriving (Generic, FromDhall)
 
