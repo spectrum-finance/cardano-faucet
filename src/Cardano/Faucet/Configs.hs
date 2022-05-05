@@ -27,7 +27,7 @@ data AppConfig = AppConfig
   , explorerConfig   :: ExplorerConfig
   , txAssemblyConfig :: TxAssemblyConfig
   , nodeConfig       :: NodeConfig
-  , wallet           :: WalletConfig
+  , walletConfig     :: WalletConfig
   , reCaptchaSecret  :: ReCaptchaSecret
   }
   deriving (Generic, FromDhall)

@@ -37,7 +37,7 @@ mkApp
   :: UnliftIO IO
   -> AppConfig
   -> IO (App IO)
-mkApp ul appconf@AppConfig{wallet=WalletConfig{..}, ..} = do
+mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} = do
   mkLogging  <- makeLogging loggingConfig
   trustStore <-
     if cardanoStyle
