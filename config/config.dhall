@@ -21,7 +21,7 @@ in
     }
   ]
 , loggingConfig =
-  { fileHandlers   = [fileHandlers "./logs/tracker.log" LogLevel.Debug]
+  { fileHandlers   = [fileHandlers "./logs/faucet.log" LogLevel.Debug]
   , levelOverrides = [] : List { _1 : Text, _2 : LogLevel }
   }
 , explorerConfig =
