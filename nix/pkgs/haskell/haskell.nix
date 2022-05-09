@@ -41,6 +41,7 @@ let
       "https://github.com/ergolabs/cardano-dex-contracts"."6ad2ae29e8c5d267b068baa886a817c814f3a640" = "TbsJfE6WSS6M+9QSrZToQ0UFyXIHRhiK6hM/Xk/kKyU=";
       "https://github.com/ergolabs/cardano-dex-sdk-haskell"."77a3879b8a381211347ab52dde1767d19964a938" = "0l5w78384n22zamq40w5kynl9y7dy9x467vxvcly8qpvc08q5kf9";
       "https://github.com/ergolabs/hlog"."4c1f902a830f4b0fa5303be3991935b92849c22d" = "0b9ahygf9gymxdg2b8b1qhvwja5mbq05l88d9v9arrrrpbpc3f2c";
+      "https://github.com/daleiz/rocksdb-haskell"."109af08f95b40f458d4933e3725ecb3e59337c39" = "1i1ya491fapa0g96527krarv0w0iybizqcz518741iw06hhpikiy";
     };
 
     modules = [

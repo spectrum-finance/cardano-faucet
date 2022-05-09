@@ -2,6 +2,8 @@ module Cardano.Faucet.Modules.FundingOutputs where
 
 import RIO hiding (writeChan, readChan, newChan)
 
+import Control.Monad.Trans.Resource (MonadResource)
+
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.ByteString.Char8 as BS
 import           Data.Aeson (encode, decode)
@@ -13,8 +15,7 @@ import CardanoTx.Models
 import Cardano.Faucet.Types (DripAsset(..))
 import Cardano.Faucet.Configs (OutputsStoreConfig(..))
 
-import qualified Database.LevelDB as LDB
-import           Database.LevelDB (MonadResource)
+import qualified Database.RocksDB as LDB
 
 data FundingOutputs m = FundingOutputs
   { putOutput  :: DripAsset -> FullTxOut -> m ()
@@ -32,7 +33,6 @@ mkFundingOutputs OutputsStoreConfig{..} MakeLogging{..} = do
   db      <- LDB.open storePath
               LDB.defaultOptions
                 { LDB.createIfMissing = True
-                , LDB.cacheSize       = naturalToInt cacheSize
                 }
   pure $ attachTracing logging FundingOutputs
     { putOutput  = putOutput' db LDB.defaultWriteOptions

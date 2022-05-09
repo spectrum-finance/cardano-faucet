@@ -26416,3 +26416,11 @@
 2022-05-09 14:22:19 CEST - App - INFO - Starting Faucet App ..
 2022-05-09 14:22:19 CEST - Executor#ergoTestTokenB - INFO - Waiting for a funding UTxO ..
 2022-05-09 14:22:19 CEST - FundingOutputs#ergoTestTokenB - DEBUG - acquire
+2022-05-10 00:22:02 CEST - App - INFO - Starting Faucet App ..
+2022-05-10 00:22:02 CEST - FundingOutputs - DEBUG - getOutput 805fe1efcdea11f1e959eff4f422f118aa76dca2d0d797d184e487da.ergoTestTokenB
+2022-05-10 00:23:28 CEST - App - INFO - Starting Faucet App ..
+2022-05-10 00:23:28 CEST - FundingOutputs - DEBUG - getOutput 805fe1efcdea11f1e959eff4f422f118aa76dca2d0d797d184e487da.ergoTestTokenB
+2022-05-10 00:39:41 CEST - App - INFO - Starting Faucet App ..
+2022-05-10 00:39:41 CEST - FundingOutputs - DEBUG - getOutput 805fe1efcdea11f1e959eff4f422f118aa76dca2d0d797d184e487da.ergoTestTokenB
+2022-05-10 00:39:41 CEST - FundingOutputs - DEBUG - getOutput 805fe1efcdea11f1e959eff4f422f118aa76dca2d0d797d184e487da.ergoTestTokenB -> Nothing
+2022-05-10 00:39:41 CEST - Executor#ergoTestTokenB - INFO - Waiting for a funding UTxO ..
