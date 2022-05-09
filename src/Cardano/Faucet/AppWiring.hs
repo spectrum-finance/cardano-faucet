@@ -32,15 +32,18 @@ import Cardano.Faucet.Http.Service (mkFaucet)
 import Cardano.Faucet.Http.Server (runHttpServer)
 import Cardano.Faucet.Services.ReCaptcha (mkReCaptcha)
 
+import qualified Database.RocksDB as Rocks
+
 newtype App m = App { runApp :: m () }
 
 mkApp
   :: UnliftIO IO
   -> AppConfig
+  -> Rocks.DB
   -> ResIO (App IO)
-mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} = do
+mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} db = do
   mkLogging  <- makeLogging loggingConfig
-  fundOuts   <- mkFundingOutputs outputStoreConfig mkLogging
+  fundOuts   <- mkFundingOutputs db mkLogging
   trustStore <-
     if cardanoStyle
       then mkTrustStoreUnsafe C.AsPaymentKey (unSigningKeyFile secretFile)

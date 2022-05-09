@@ -20,6 +20,6 @@ in
     ];
 
     buildInputs = with cardano-faucet; [
-      pkgs.leveldb
+      pkgs.rocksdb
     ];
   }

@@ -4,6 +4,8 @@ RUN apt update && apt upgrade -y \
   && apt install libsodium-dev -y \
   && apt install libnuma-dev -y \
   && apt install libffi-dev -y \
+  && apt install libsnappy-dev -y \
+  && apt install libleveldb-dev -y \
   && apt install curl -y;
 
 #Install previsous versions of libffi libs

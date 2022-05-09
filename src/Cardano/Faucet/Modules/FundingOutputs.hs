@@ -5,16 +5,15 @@ import RIO hiding (writeChan, readChan, newChan)
 import qualified Data.ByteString.Lazy as LBS
 import qualified Data.ByteString.Char8 as BS
 import           Data.Aeson (encode, decode)
-import           GHC.Natural (naturalToInt)
+
+import Control.Monad.Trans.Resource (MonadResource)
 
 import System.Logging.Hlog (Logging(Logging, debugM), MakeLogging(..))
 
 import CardanoTx.Models
 import Cardano.Faucet.Types (DripAsset(..))
-import Cardano.Faucet.Configs (OutputsStoreConfig(..))
 
-import qualified Database.LevelDB as LDB
-import           Database.LevelDB (MonadResource)
+import qualified Database.RocksDB as Rocks
 
 data FundingOutputs m = FundingOutputs
   { putOutput  :: DripAsset -> FullTxOut -> m ()
@@ -24,30 +23,25 @@ data FundingOutputs m = FundingOutputs
 
 mkFundingOutputs
   :: (MonadIO f, MonadResource f, MonadIO m)
-  => OutputsStoreConfig
+  => Rocks.DB
   -> MakeLogging f m
   -> f (FundingOutputs m)
-mkFundingOutputs OutputsStoreConfig{..} MakeLogging{..} = do
+mkFundingOutputs db MakeLogging{..} = do
   logging <- forComponent "FundingOutputs"
-  db      <- LDB.open storePath
-              LDB.defaultOptions
-                { LDB.createIfMissing = True
-                , LDB.cacheSize       = naturalToInt cacheSize
-                }
   pure $ attachTracing logging FundingOutputs
-    { putOutput  = putOutput' db LDB.defaultWriteOptions
-    , getOutput  = getOutput' db LDB.defaultReadOptions 
-    , dropOutput = dropOutput' db LDB.defaultWriteOptions
+    { putOutput  = putOutput' db
+    , getOutput  = getOutput' db
+    , dropOutput = dropOutput' db
     }
 
-putOutput' :: MonadIO m => LDB.DB -> LDB.WriteOptions -> DripAsset -> FullTxOut -> m ()
-putOutput' db opts asset out = liftIO $ LDB.put db opts (asKey asset) (LBS.toStrict $ encode out)
+putOutput' :: MonadIO m => Rocks.DB -> DripAsset -> FullTxOut -> m ()
+putOutput' db asset out = liftIO $ Rocks.put db (asKey asset) (LBS.toStrict $ encode out)
 
-getOutput' :: MonadIO m => LDB.DB -> LDB.ReadOptions -> DripAsset -> m (Maybe FullTxOut)
-getOutput'  db opts asset = liftIO $ LDB.get db opts (asKey asset) <&> (>>= (decode . LBS.fromStrict))
+getOutput' :: MonadIO m => Rocks.DB -> DripAsset -> m (Maybe FullTxOut)
+getOutput'  db asset = liftIO $ Rocks.get db (asKey asset) <&> (>>= (decode . LBS.fromStrict))
 
-dropOutput' :: MonadIO m => LDB.DB -> LDB.WriteOptions -> DripAsset -> m ()
-dropOutput' db opts asset = liftIO . LDB.delete db opts $ asKey asset
+dropOutput' :: MonadIO m => Rocks.DB -> DripAsset -> m ()
+dropOutput' db asset = liftIO . Rocks.delete db $ asKey asset
 
 asKey :: Show a => a -> ByteString
 asKey = BS.pack . show
