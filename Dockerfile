@@ -15,5 +15,5 @@ RUN apt install libffi6 libffi7 -y
 WORKDIR /cardano-faucet
 COPY temp-build/cardano-faucet-exe /cardano-faucet/
 COPY config/config.dhall /etc/cardano-faucet/
-EXPOSE 8082
+EXPOSE 8083
 ENTRYPOINT /cardano-faucet/cardano-faucet-exe $0
