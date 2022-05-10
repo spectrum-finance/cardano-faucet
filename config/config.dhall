@@ -41,8 +41,8 @@ in
   , cardanoStyle = False
   }
 , outputStoreConfig =
-  { storePath = "./data/funding_store"
-  , cacheSize = 256
+  { storePath       = "./data/funding_store"
+  , createIfMissing = True
   }
 , reCaptchaSecret = "secret"
 }

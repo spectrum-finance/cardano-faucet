@@ -64,8 +64,8 @@ data WalletConfig = WalletConfig
   deriving (Generic, FromDhall)
 
 data OutputsStoreConfig = OutputsStoreConfig
-  { storePath :: FilePath
-  , cacheSize :: Natural
+  { storePath       :: FilePath
+  , createIfMissing :: Bool
   }
   deriving (Generic, FromDhall)
 

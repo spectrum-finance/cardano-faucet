@@ -6,7 +6,7 @@ import RIO.List
 import Control.Monad.IO.Unlift
 import Control.Monad.Trans.Resource (runResourceT)
 
-import           Cardano.Faucet.Configs (loadAppConfig)
+import           Cardano.Faucet.Configs   (loadAppConfig)
 import qualified Cardano.Faucet.AppWiring as AppWiring
 
 runApp :: [String] -> IO ()
