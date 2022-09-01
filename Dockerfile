@@ -4,8 +4,6 @@ RUN apt update && apt upgrade -y \
   && apt install libsodium-dev -y \
   && apt install libnuma-dev -y \
   && apt install libffi-dev -y \
-  && apt install libsnappy-dev -y \
-  && apt install libleveldb-dev -y \
   && apt install curl -y;
 
 #Install previsous versions of libffi libs
@@ -17,5 +15,5 @@ RUN apt install libffi6 libffi7 -y
 WORKDIR /cardano-faucet
 COPY temp-build/cardano-faucet-exe /cardano-faucet/
 COPY config/config.dhall /etc/cardano-faucet/
-EXPOSE 8083
+EXPOSE 8082
 ENTRYPOINT /cardano-faucet/cardano-faucet-exe $0

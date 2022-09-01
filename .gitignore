@@ -25,5 +25,3 @@ cabal.project.local~
 stack.yaml.lock
 explorer.dhall
 temp-build/
-logs/
-data/

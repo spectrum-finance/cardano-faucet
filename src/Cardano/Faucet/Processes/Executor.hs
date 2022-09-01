@@ -7,7 +7,6 @@ import RIO
 
 import           Data.Set as Set
 import qualified Data.List as List
-import qualified Data.List.NonEmpty as NEL
 
 import System.Logging.Hlog (Logging(..), MakeLogging(..))
 import GHC.Natural (naturalToInt)
@@ -57,6 +56,8 @@ runExecution
   -> m ()
 runExecution Logging{..} conf@ExecutionConfig{..} RequestQueue{..} FundingOutputs{..} txs@Transactions{..} =
   forever $ do
+    infoM @String "Waiting for a funding UTxO .."
+    fundingIn <- acquire
     let
       collectRequests acc n =
         dequeue >>= \case
@@ -64,14 +65,11 @@ runExecution Logging{..} conf@ExecutionConfig{..} RequestQueue{..} FundingOutput
           _                            -> pure acc
       reEnqueueRequests (r : rs) = enqueue r >>= (\success -> if success then reEnqueueRequests rs else pure ())
       reEnqueueRequests _        = pure ()
-
-    fundingIn <- getOutput dripAsset
-    reqs      <- collectRequests [] 0
-    case (fundingIn, NEL.nonEmpty reqs) of
-      (Nothing, _)                  -> infoM @String "Waiting for a funding UTxO .."
-      (_, Nothing)                  -> infoM @String "Nothing to execute .."
-      (Just fundingIn', Just reqs') -> do
-        txres <- mkTx conf txs (mkPkhTxIn fundingIn') reqs'
+    reqs <- collectRequests [] 0
+    case reqs of
+      [] -> infoM @String "Nothing to execute .." >> put fundingIn
+      _  -> do
+        txres <- mkTx conf txs (mkPkhTxIn fundingIn) reqs
         case txres of
           Just (txc, leftReqs) -> do
             debugM $ "Building " ++ show txc
@@ -81,9 +79,9 @@ runExecution Logging{..} conf@ExecutionConfig{..} RequestQueue{..} FundingOutput
             debugM $ "Submitted Tx{txId=" <> show txId <> "}"
 
             let
-              fundingAddr       = fullTxOutAddress fundingIn'
+              fundingAddr       = fullTxOutAddress fundingIn
               nextFundingOutput = List.find ((== fundingAddr) . fullTxOutAddress) (extractCardanoTxOutputs tx)
-            maybe (infoM @String "Next funding UTxO not found") (putOutput dripAsset) nextFundingOutput
+            maybe (infoM @String "Next funding UTxO not found") put nextFundingOutput
             reEnqueueRequests leftReqs
           Nothing -> reEnqueueRequests reqs
     threadDelay $ naturalToInt delay
@@ -93,7 +91,7 @@ mkTx
   => ExecutionConfig
   -> Transactions m era
   -> FullTxIn
-  -> NonEmpty DripRequest
+  -> [DripRequest]
   -> m (Maybe (TxCandidate, [DripRequest]))
 mkTx ExecutionConfig{..} Transactions{..} fundingIn requests' =
   let
@@ -147,7 +145,7 @@ mkTx ExecutionConfig{..} Transactions{..} fundingIn requests' =
             r : rs -> mkTx' rs (r : residue)
             []     -> pure Nothing
 
-  in mkTx' (RIO.toList requests') []
+  in mkTx' requests' []
 
 adaAssetClass :: AssetClass
 adaAssetClass = assetClass adaSymbol adaToken

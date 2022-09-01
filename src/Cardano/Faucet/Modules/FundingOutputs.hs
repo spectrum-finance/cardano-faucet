@@ -2,66 +2,42 @@ module Cardano.Faucet.Modules.FundingOutputs where
 
 import RIO hiding (writeChan, readChan, newChan)
 
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.ByteString.Char8 as BS
-import           Data.Aeson (encode, decode)
-
-import Control.Monad.Trans.Resource (MonadResource)
-
-import System.Logging.Hlog (Logging(Logging, debugM), MakeLogging(..))
-
 import CardanoTx.Models
+import Control.Concurrent.Chan.Unagi
+import System.Logging.Hlog (Logging(Logging, debugM), MakeLogging(..))
 import Cardano.Faucet.Types (DripAsset(..))
-
-import qualified Database.RocksDB as Rocks
+import Ledger.Value (AssetClass(AssetClass), toString)
 
 data FundingOutputs m = FundingOutputs
-  { putOutput  :: DripAsset -> FullTxOut -> m ()
-  , getOutput  :: DripAsset -> m (Maybe FullTxOut)
-  , dropOutput :: DripAsset -> m ()
+  { put     :: FullTxOut -> m ()
+  , acquire :: m FullTxOut -- blocks until UTxO is available
   }
 
-mkFundingOutputs
-  :: (MonadIO f, MonadResource f, MonadIO m)
-  => Rocks.DB
-  -> MakeLogging f m
-  -> f (FundingOutputs m)
-mkFundingOutputs db MakeLogging{..} = do
-  logging <- forComponent "FundingOutputs"
-  pure $ attachTracing logging FundingOutputs
-    { putOutput  = putOutput' db
-    , getOutput  = getOutput' db
-    , dropOutput = dropOutput' db
+mkFundingOutputs :: (MonadIO f, MonadIO m) => MakeLogging f m -> DripAsset -> f (FundingOutputs m)
+mkFundingOutputs MakeLogging{..} (DripAsset (AssetClass (_, tn))) = do
+  logging     <- forComponent $ "FundingOutputs#" <> toString tn
+  (inc, outc) <- liftIO newChan
+  pure FundingOutputs
+    { put     = tracePut logging $ put' inc
+    , acquire = traceAcquire logging $ acquire' outc
     }
 
-putOutput' :: MonadIO m => Rocks.DB -> DripAsset -> FullTxOut -> m ()
-putOutput' db asset out = liftIO $ Rocks.put db (asKey asset) (LBS.toStrict $ encode out)
+put' :: MonadIO m => InChan FullTxOut -> FullTxOut -> m ()
+put' channel = liftIO . writeChan channel
 
-getOutput' :: MonadIO m => Rocks.DB -> DripAsset -> m (Maybe FullTxOut)
-getOutput'  db asset = liftIO $ Rocks.get db (asKey asset) <&> (>>= (decode . LBS.fromStrict))
+tracePut :: (Monad m, Show a, Show b) => Logging m -> (a -> m b) -> a -> m b
+tracePut Logging{..} fn out = do
+  debugM $ "put " <> show out
+  r <- fn out
+  debugM $ "put " <> show out <> " -> " <> show r
+  pure r
 
-dropOutput' :: MonadIO m => Rocks.DB -> DripAsset -> m ()
-dropOutput' db asset = liftIO . Rocks.delete db $ asKey asset
+acquire' :: MonadIO m => OutChan FullTxOut -> m FullTxOut
+acquire' = liftIO . readChan
 
-asKey :: Show a => a -> ByteString
-asKey = BS.pack . show
-
-attachTracing :: Monad m => Logging m -> FundingOutputs m -> FundingOutputs m
-attachTracing Logging{..} FundingOutputs{..} =
-  FundingOutputs
-    { putOutput = \asset out -> do
-        debugM $ "putOutput " <> show asset <> " " <> show out
-        r <- putOutput asset out
-        debugM $ "putOutput " <> show asset <> " " <> show out <> " -> " <> show r
-        pure r
-    , getOutput = \asset -> do
-        debugM $ "getOutput " <> show asset
-        r <- getOutput asset
-        debugM $ "getOutput " <> show asset <> " -> " <> show r
-        pure r
-    , dropOutput = \asset -> do
-        debugM $ "dropOutput " <> show asset
-        r <- dropOutput asset
-        debugM $ "dropOutput " <> show asset <> " -> " <> show r
-        pure r
-    }
+traceAcquire :: (Monad m, Show b) => Logging m -> m b -> m b
+traceAcquire Logging{..} fa = do
+  debugM @String "acquire"
+  r <- fa
+  debugM $ "acquire " <> " -> " <> show r
+  pure r

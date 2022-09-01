@@ -18,8 +18,4 @@ in
       # HACK: This shouldn't need to be here.
       pkgs.lzma.dev
     ];
-
-    buildInputs = with cardano-faucet; [
-      pkgs.rocksdb
-    ];
   }

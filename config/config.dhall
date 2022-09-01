@@ -40,9 +40,5 @@ in
   , keyPass      = "secret"
   , cardanoStyle = False
   }
-, outputStoreConfig =
-  { storePath = "./data/output-store"
-  , cacheSize = 256
-  }
 , reCaptchaSecret = "secret"
 }

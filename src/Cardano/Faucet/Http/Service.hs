@@ -27,6 +27,7 @@ import GHC.Natural (naturalToInteger)
 import Cardano.Faucet.Services.ReCaptcha
 
 type RequestQueues m   = Map.Map DripAsset (RequestQueue m)
+type FundingOutputs' m = Map.Map DripAsset (FundingOutputs m)
 
 data Faucet m = Faucet
   { registerRequest :: DripRequest -> ExceptT ServerError m ()
@@ -37,7 +38,7 @@ data Faucet m = Faucet
 mkFaucet
   :: (Monad f, Monad m)
   => RequestQueues m
-  -> FundingOutputs m
+  -> FundingOutputs' m
   -> OutputResolver m
   -> ReCaptcha m
   -> MakeLogging f m
@@ -84,8 +85,8 @@ registerRequestReCaptchaVerify ReCaptcha{..} fa req@DripRequest{..} =
     True -> fa req
     _    -> throwError err400 { errBody = "Invalid ReCaptcha token." }
 
-ackFundingUtxo' :: Monad m => OutputResolver m -> FundingOutputs m -> AckUtxo -> ExceptT ServerError m ()
-ackFundingUtxo' OutputResolver{..} FundingOutputs{..} (AckUtxo ref) =
+ackFundingUtxo' :: Monad m => OutputResolver m -> FundingOutputs' m -> AckUtxo -> ExceptT ServerError m ()
+ackFundingUtxo' OutputResolver{..} outputs' (AckUtxo ref) =
   (lift . resolve $ ref) >>= \case
     Just out ->
       let
@@ -96,7 +97,9 @@ ackFundingUtxo' OutputResolver{..} FundingOutputs{..} (AckUtxo ref) =
         selectAsset _                                   = Nothing
 
         asset = DripAsset $ fromMaybe (AssetClass (adaSymbol, adaToken)) $ selectAsset assets
-      in lift $ putOutput asset out
+      in case Map.lookup asset outputs' of
+        Just FundingOutputs{..} -> lift . put $ out
+        _                       -> throwError err400 { errBody = "Unknown asset." }
     Nothing  -> throwError err400 { errBody = "UTxO not found." }
 
 getDripOptions' :: Monad m => AppConfig -> ExceptT ServerError m [DripOption]
