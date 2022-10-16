@@ -22,6 +22,7 @@ import qualified Ledger.Tx.CardanoAPI as Interop
 import Ledger (AssetClass, Address)
 import Ledger.Value (assetClass, AssetClass (AssetClass))
 import Plutus.V1.Ledger.Value (toString)
+import CardanoTx.Address
 
 newtype ReCaptchaSecret = ReCaptchaSecret { getSecret :: String }
   deriving stock (Eq, Show, Ord, Generic)
@@ -68,8 +69,5 @@ instance FromJSON DripAddress where
     maybe
       (fail "Invalid Shelly Address")
       (pure . DripAddress)
-      (do
-        caddr <- C.deserialiseAddress C.AsShelleyAddress s
-        either (const Nothing) pure
-          (Interop.fromCardanoAddress (C.AddressInEra (C.ShelleyAddressInEra C.ShelleyBasedEraAlonzo) caddr)))
+      (readShellyAddress s)
   parseJSON _ = fail "Expected a string"
