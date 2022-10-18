@@ -156,4 +156,4 @@ minSufficientLovelace :: Integer
 minSufficientLovelace = 2000000
 
 txFeeCorrectionValue :: Lovelace
-txFeeCorrectionValue = 6512 -- magic
+txFeeCorrectionValue = 11264 -- magic
