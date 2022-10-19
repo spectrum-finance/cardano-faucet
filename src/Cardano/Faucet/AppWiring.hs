@@ -20,13 +20,13 @@ import WalletAPI.TrustStore (mkTrustStoreUnsafe, mkTrustStore, SecretFile (unSig
 import WalletAPI.Vault (mkVault)
 import WalletAPI.Utxos (WalletOutputs(..))
 import NetworkAPI.Types (SocketPath(SocketPath))
-import NetworkAPI.Node.Service (mkNetwork)
-import SubmitAPI.Service (mkTransactions)
+import NetworkAPI.Service (mkCardanoNetwork)
+import SubmitAPI.Service  (mkTransactions)
 
 import Cardano.Faucet.Modules.RequestQueue
 import Cardano.Faucet.Modules.FundingOutputs
 import Cardano.Faucet.Modules.OutputResolver
-import Cardano.Faucet.Configs (AppConfig(..), ExecutionConfig(..), WalletConfig(..), NodeConfig(..))
+import Cardano.Faucet.Configs (AppConfig(..), ExecutionConfig(..), WalletConfig(..), NodeConfig(..), NetworkConfig (cardanoNetworkId))
 import Cardano.Faucet.Processes.Executor (mkExecutor, Executor (runExecutor))
 import Cardano.Faucet.Http.Service (mkFaucet)
 import Cardano.Faucet.Http.Server (runHttpServer)
@@ -46,12 +46,19 @@ mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} = do
       then mkTrustStoreUnsafe C.AsPaymentKey (unSigningKeyFile secretFile)
       else pure $ mkTrustStore C.AsPaymentKey secretFile
   let
-    explorer      = mkExplorer explorerConfig
+    networkId = C.Testnet (C.NetworkMagic (fromIntegral $ cardanoNetworkId networkConfig))
+
+  explorer      <- mkExplorer mkLogging explorerConfig
+
+  let 
     vault         = mkVault trustStore keyPass
     walletOutputs = noopWalletOutputs
     sockPath      = SocketPath $ nodeSocketPath nodeConfig
-    network       = mkNetwork C.AlonzoEra epochSlots testnet sockPath
-    transactions  = mkTransactions network testnet walletOutputs vault txAssemblyConfig
+  
+  network <- mkCardanoNetwork mkLogging C.BabbageEra epochSlots networkId sockPath
+
+  let 
+    transactions  = mkTransactions network networkId walletOutputs vault txAssemblyConfig
 
     mkExecutorFor conf@ExecutionConfig{queueSize, dripAsset} = do
       rq   <- mkRequestQueue $ naturalToInt queueSize
@@ -72,9 +79,6 @@ mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} = do
   pure . App $ infoM @String "Starting Faucet App .."
     >> mapM_ (forkIO . runExecutor) executors
     >> runServer
-
-testnet :: C.NetworkId
-testnet = C.Testnet $ C.NetworkMagic 1097911063
 
 epochSlots :: C.ConsensusModeParams C.CardanoMode
 epochSlots = C.CardanoModeParams $ C.EpochSlots 21600

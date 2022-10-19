@@ -21,7 +21,8 @@ in
       }
     ]
 , loggingConfig =
-    { fileHandlers   = [fileHandlers "./logs/faucet.log" LogLevel.Debug]
+    { rootLogLevel   = LogLevel.Debug
+    , fileHandlers   = [fileHandlers "./logs/faucet.log" LogLevel.Debug]
     , levelOverrides = [] : List { _1 : Text, _2 : LogLevel }
     }
 , explorerConfig =
@@ -45,4 +46,7 @@ in
     , createIfMissing = True
     }
 , reCaptchaSecret = "secret"
+, networkConfig = 
+    { cardanoNetworkId = 2
+    }
 }

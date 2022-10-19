@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               cardano-faucet
-version:            0.1.7.3
+version:            0.1.8.4
 
 author:             ErgoLabs
 maintainer:         ErgoLabs
@@ -114,20 +114,20 @@ library
                   , warp == 3.3.17
                   , servant-server == 0.18.3
                   , cryptonite == 0.27
-                  , cardano-api == 1.32.1
-                  , plutus-ledger == 0.1.0.0
-                  , serialise == 0.2.3.0
-                  , cardano-tx == 0.1.0.0
-                  , network-api == 0.1.0.0
-                  , wallet-api == 0.1.0.0
-                  , submit-api == 0.1.0.0
-                  , quickblue == 0.1.0.0
-                  , plutus-chain-index == 0.1.0.0
-                  , plutus-tx == 0.1.0.0
-                  , plutus-ledger-api == 0.1.0.0
-                  , plutus-ledger-constraints == 0.1.0.0
-                  , plutus-contract == 0.1.0.0
-                  , cardano-slotting == 0.1.0.0
+                  , cardano-api
+                  , plutus-ledger
+                  , serialise
+                  , cardano-tx
+                  , network-api
+                  , wallet-api
+                  , submit-api
+                  , quickblue
+                  , plutus-chain-index
+                  , plutus-tx
+                  , plutus-ledger-api
+                  , plutus-ledger-constraints
+                  , plutus-contract
+                  , cardano-slotting
                   , prettyprinter == 1.7.0
                   , split == 0.2.3.4
                   , http-conduit == 2.3.8

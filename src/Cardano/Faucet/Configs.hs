@@ -5,6 +5,7 @@ module Cardano.Faucet.Configs
   , WalletConfig(..)
   , NodeConfig(..)
   , OutputsStoreConfig(..)
+  , NetworkConfig(..)
   , loadAppConfig
   ) where
 
@@ -31,6 +32,7 @@ data AppConfig = AppConfig
   , walletConfig      :: WalletConfig
   , reCaptchaSecret   :: ReCaptchaSecret
   , outputStoreConfig :: OutputsStoreConfig
+  , networkConfig     :: NetworkConfig
   }
   deriving (Generic, FromDhall)
 
@@ -68,6 +70,10 @@ data OutputsStoreConfig = OutputsStoreConfig
   , createIfMissing :: Bool
   }
   deriving (Generic, FromDhall)
+
+data NetworkConfig = NetworkConfig
+  { cardanoNetworkId :: !Natural 
+  } deriving (Generic, FromDhall)
 
 loadAppConfig :: MonadIO f => Maybe String -> f AppConfig
 loadAppConfig maybePath = liftIO $ input auto path

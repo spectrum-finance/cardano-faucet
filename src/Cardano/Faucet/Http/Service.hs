@@ -17,7 +17,7 @@ import Cardano.Faucet.Modules.FundingOutputs
 
 import CardanoTx.Models ( FullTxOut(fullTxOutValue) )
 import Ledger.Value (flattenValue, AssetClass (AssetClass))
-import Plutus.V1.Ledger.Ada (adaSymbol, adaToken)
+import Ledger.Ada   (adaSymbol, adaToken)
 
 import Cardano.Faucet.Types (DripAsset(..))
 import System.Logging.Hlog (MakeLogging(..), Logging (debugM, Logging))
