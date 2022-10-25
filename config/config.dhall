@@ -11,59 +11,11 @@ in
     , getPort = 8083
     }
 , executionConfigs =
-  [ { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.C3t"
+    [ { maxOutputsPerTx    = 10
+      , dripAsset          = "805fe1efcdea11f1e959eff4f422f118aa76dca2d0d797d184e487da.ergoTestTokenB"
       , dripAmount         = 1000000
       , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
-      , delay              = 15000000
-      , queueSize          = 4096
-      }
-    , { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.GENSt"
-      , dripAmount         = 1000000
-      , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
-      , delay              = 15000000
-      , queueSize          = 4096
-      }
-    , { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.GEROt"
-      , dripAmount         = 1000000
-      , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
-      , delay              = 15000000
-      , queueSize          = 4096
-      }
-    , { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.WMTt"
-      , dripAmount         = 1000000
-      , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
-      , delay              = 15000000
-      , queueSize          = 4096
-      }
-    , { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.MELDt"
-      , dripAmount         = 1000000
-      , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
-      , delay              = 15000000
-      , queueSize          = 4096
-      }
-    , { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.cNETAt"
-      , dripAmount         = 1000000
-      , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
-      , delay              = 15000000
-      , queueSize          = 4096
-      }
-    , { maxOutputsPerTx    = 10
-      , dripAsset          = "065270479316f1d92e00f7f9f095ebeaac9d009c878dc35ce36d3404.HOSKYt"
-      , dripAmount         = 1000000
-      , dripAmountLovelace = 1500000
-      , changeAddr         = "addr_test1qz8q8ymsty33sw7mh4s2wxj2pe4mcrlchxxa37z70l348cyjd3dlf08q9usapw5gt5t8cp8lju7wtwqzk5cj0gxaxyss6w8n66"
+      , changeAddr         = "addr_test1vr007v5nktnksje3gnm4aw4arwrkcl5rvvx4lwa3w8mtzxgf6c2nt"
       , delay              = 15000000
       , queueSize          = 4096
       }
@@ -82,10 +34,10 @@ in
     , deafultChangeAddr = "addr_test1vr007v5nktnksje3gnm4aw4arwrkcl5rvvx4lwa3w8mtzxgf6c2nt"
     }
 , nodeConfig =
-    { nodeSocketPath = "/home/bromel/projects/cardano-node/ipc/node.socket"
+    { nodeSocketPath = "/home/dex/cardano-node/testnet-node-local/bin/state-node-testnet/node.socket"
     }
 , walletConfig =
-    { secretFile   = "/home/bromel/projects/cardano-dex-backend/wallet1TS.json"
+    { secretFile   = "/home/dex/cardano-dex-backend/executor/ts.json"
     , keyPass      = "secret"
     , cardanoStyle = False
     }
