@@ -26,7 +26,7 @@ in
     , levelOverrides = [] : List { _1 : Text, _2 : LogLevel }
     }
 , explorerConfig =
-    { explorerUri = "https://testnet-api.quickblue.io"
+    { explorerUri = "https://explorer.spectrum.fi"
     }
 , txAssemblyConfig =
     { feePolicy         = FeePolicy.Balance
